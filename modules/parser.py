@@ -17,26 +17,10 @@ TOOL_CMDS = {
         "cmd_tls": "nuclei -o {outdir}/{host}-{port}.json -u https://{host}:{port}",
         "cmd": "nuclei -o {outdir}/{host}-{port}.json -u http://{host}:{port}",
     },
-    "testssl": {
-        "cmd": "testssl -oJ {outdir} {host}:{port}",
-        "needs_tls": True,
-        "match_all_tls": True,
-    },
-    "ssh-audit": {
-        "services": ["ssh"],
-        "cmd": "ssh-audit -jj {host} {port} > {outdir}/{host}-{port}.json 2>&1",
-    },
-    "snmp-check": {
-        "services": ["snmp"],
-        "cmd": "snmp-check {host} -c public -p {port} > {outdir}/{host}-{port}.txt 2>&1",
-    },
-    "smtp-user-enum": {
-        "services": ["smtp", "smtps"],
-        "cmd": "smtp-user-enum -M VRFY -U /usr/share/wordlists/users.txt -t {host} -p {port} > {outdir}/{host}-{port}.txt 2>&1",
-    },
-    "kerbrute": {
-        "services": ["kerberos"],
-        "cmd": "kerbrute userenum -d example.com /usr/share/wordlists/users.txt --dc {host}:{port} -o {outdir}/{host}-{port}.txt",
+    "whatweb": {
+        "services": ["http", "https"],
+        "cmd_tls": "whatweb https://{host}:{port} --log-verbose={outdir}/{host}-{port}.txt",
+        "cmd": "whatweb http://{host}:{port} --log-verbose={outdir}/{host}-{port}.txt",
     },
     "nikto": {
         "services": ["http", "https"],
@@ -47,6 +31,65 @@ TOOL_CMDS = {
         "services": ["http", "https"],
         "cmd_tls": "curl -skI https://{host}:{port} > {outdir}/{host}-{port}.headers.txt 2>&1",
         "cmd": "curl -sI http://{host}:{port} > {outdir}/{host}-{port}.headers.txt 2>&1",
+    },
+    "testssl": {
+        "cmd": "testssl -oJ {outdir} {host}:{port}",
+        "needs_tls": True,
+        "match_all_tls": True,
+    },
+    "sslscan": {
+        "cmd": "sslscan {host}:{port} > {outdir}/{host}-{port}.txt 2>&1",
+        "needs_tls": True,
+        "match_all_tls": True,
+    },
+    "ssh-audit": {
+        "services": ["ssh"],
+        "cmd": "ssh-audit -jj {host} {port} > {outdir}/{host}-{port}.json 2>&1",
+    },
+    "enum4linux": {
+        "services": ["microsoft-ds", "netbios-ssn"],
+        "cmd": "timeout 120 enum4linux -a {host} > {outdir}/{host}-{port}.txt 2>&1",
+    },
+    "smbclient": {
+        "services": ["microsoft-ds", "netbios-ssn"],
+        "cmd": "timeout 30 smbclient -L {host} -N > {outdir}/{host}-{port}.txt 2>&1",
+    },
+    "ldapsearch": {
+        "services": ["ldap", "ldaps"],
+        "cmd": "ldapsearch -x -H ldap://{host}:{port} -b '' -s base > {outdir}/{host}-{port}.txt 2>&1",
+        "cmd_tls": "ldapsearch -x -H ldaps://{host}:{port} -b '' -s base > {outdir}/{host}-{port}.txt 2>&1",
+    },
+    "showmount": {
+        "services": ["nfs"],
+        "cmd": "showmount -e {host} > {outdir}/{host}-{port}.txt 2>&1",
+    },
+    "snmp-check": {
+        "services": ["snmp"],
+        "cmd": "snmp-check {host} -c public -p {port} > {outdir}/{host}-{port}.txt 2>&1",
+    },
+    "smtp-user-enum": {
+        "services": ["smtp", "smtps"],
+        "cmd": "smtp-user-enum -M VRFY -U /usr/share/wordlists/users.txt -t {host} -p {port} > {outdir}/{host}-{port}.txt 2>&1",
+    },
+    "redis-info": {
+        "services": ["redis"],
+        "cmd": "timeout 30 redis-cli -h {host} -p {port} INFO > {outdir}/{host}-{port}.txt 2>&1",
+    },
+    "mysql-check": {
+        "services": ["mysql", "mariadb"],
+        "cmd": "timeout 30 mysql -h {host} -P {port} -u root --skip-password -e 'SHOW DATABASES;' > {outdir}/{host}-{port}.txt 2>&1",
+    },
+    "psql-check": {
+        "services": ["postgresql"],
+        "cmd": "timeout 30 env PGPASSWORD=postgres psql -h {host} -p {port} -U postgres -c 'SELECT datname FROM pg_database;' > {outdir}/{host}-{port}.txt 2>&1",
+    },
+    "kerbrute": {
+        "services": ["kerberos"],
+        "cmd": "kerbrute userenum -d example.com /usr/share/wordlists/users.txt --dc {host}:{port} -o {outdir}/{host}-{port}.txt",
+    },
+    "ike-scan": {
+        "services": ["isakmp"],
+        "cmd": "ike-scan {host} > {outdir}/{host}-{port}.txt 2>&1",
     },
 }
 
