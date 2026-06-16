@@ -86,9 +86,9 @@ def main():
 
     parse_p = sub.add_parser("parse", help="Parse nmap XML output into structured data")
     parse_p.add_argument("-d", "--dir", default="scan",
-                         help="Scan directory (default: scan/)")
+                         help="Nmap XML input directory (default: scan/)")
     parse_p.add_argument("-o", "--output",
-                         help="Output path for parsed JSON (default: scan/parsed.json)")
+                         help="Output path for parsed JSON (default: parsed.json)")
     parse_p.add_argument("--probe", action="store_true",
                          help="Actively probe TCP services for TLS")
     parse_p.add_argument("--jump-host",
