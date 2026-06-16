@@ -40,8 +40,8 @@ TOOL_CMDS = {
     },
     "nikto": {
         "services": ["http", "https"],
-        "cmd_tls": "nikto -ssl -host {host} -port {port} -output {outdir}/{host}-{port}.txt",
-        "cmd": "nikto -host {host} -port {port} -output {outdir}/{host}-{port}.txt",
+        "cmd_tls": "timeout 180 nikto -ssl -timeout 10 -host {host} -port {port} -output {outdir}/{host}-{port}.txt",
+        "cmd": "timeout 180 nikto -timeout 10 -host {host} -port {port} -output {outdir}/{host}-{port}.txt",
     },
     "security-headers": {
         "services": ["http", "https"],
@@ -369,11 +369,11 @@ def _generate_main_sh(tool_files):
         f.write('}\n\n')
 
         f.write('# Create output directories\n')
-        for tool_name in sorted(tool_files):
+        for tool_name in sorted(tool_files, key=lambda t: (1 if t == "nikto" else 0, t)):
             f.write(f'mkdir -p run-output/{tool_name}\n')
         f.write('\n')
 
-        for tool_name in sorted(tool_files):
+        for tool_name in sorted(tool_files, key=lambda t: (1 if t == "nikto" else 0, t)):
             f.write(f'run_cmds "{tool_name}.cmds" "{tool_name}"\n')
 
         f.write('\necho "[+] All tools complete"\n')
