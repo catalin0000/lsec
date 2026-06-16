@@ -178,11 +178,21 @@ def _probe_tls_remote(host, port, jump_host, timeout=5):
     return False, {}
 
 
-def parse_nmap(scan_dir="scan", output=None, probe_tls=False, jump_host=None):
-    nmap_output_dir = os.path.join(scan_dir, "nmap-output")
+def _find_nmap_dir(base_dir):
+    if not os.path.isdir(base_dir):
+        return None
+    candidates = [base_dir, os.path.join(base_dir, "nmap-output")]
+    for d in candidates:
+        if os.path.isdir(d) and any(f.endswith(".xml") for f in os.listdir(d)):
+            return d
+    return candidates[-1]
 
-    if not os.path.isdir(nmap_output_dir):
-        print(f"[-] Nmap output directory not found: {nmap_output_dir}")
+
+def parse_nmap(scan_dir="scan", output=None, probe_tls=False, jump_host=None):
+    nmap_output_dir = _find_nmap_dir(scan_dir)
+
+    if nmap_output_dir is None:
+        print(f"[-] Directory not found: {scan_dir}")
         print("    Run a scan first: lsec scan -f targets.txt")
         sys.exit(1)
 
@@ -192,7 +202,7 @@ def parse_nmap(scan_dir="scan", output=None, probe_tls=False, jump_host=None):
     ])
 
     if not xml_files:
-        print(f"[-] No .xml files found in {nmap_output_dir}")
+        print(f"[-] No .xml files found in {scan_dir} or {scan_dir}/nmap-output/")
         print("    This might mean no scans have completed yet.")
         sys.exit(1)
 
