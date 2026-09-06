@@ -6,7 +6,7 @@ import os
 import json
 
 from modules.scan import run_scan
-from modules.parser import parse_nmap
+from modules.me_parser import parse_nmap
 from modules.ssh import scp_from_remote
 
 
